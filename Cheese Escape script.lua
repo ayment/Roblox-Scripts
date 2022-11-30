@@ -15,7 +15,8 @@ if getgenv().loaded then
 else
     getgenv().loaded = true
 end
-
+--if someone wants to learn more about this ui then take this https://gist.githubusercontent.com/Simak90/bf6e06309d013331eda908d06058b323/raw/87531e808f8b56a33974826804ea9939aa3234cd/Flux%2520docs
+--this helps me a lot so I hope this helps you too.
 local Flux = loadstring(game:HttpGet"https://raw.githubusercontent.com/dawid-scripts/UI-Libs/main/fluxlib.txt")() --ui library = flux
 local win = Flux:Window("Cheese Escape", "by moon", Color3.fromRGB(100,65.1,0), Enum.KeyCode.RightShift) 
 --visual locals
