@@ -6,7 +6,11 @@ until game:IsLoaded()
 
 --Stops script if on a different game
 if game.PlaceId ~= 5777099015 then
-    game.Players.LocalPlayer:Kick("This script only works in Cheese Escape")
+    game.StarterGui:SetCore("SendNotification", {
+        Title = "Cheese Escape",
+        Text = "Failed This script works only in Cheese Escape",
+        Duration = 6
+    })
     return
 end
 
