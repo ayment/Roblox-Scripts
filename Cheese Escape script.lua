@@ -276,7 +276,7 @@ end
         Toggle = false 
         end
         for i,v in pairs(game.Workspace.Mouse:GetDescendants()) do
-            if v.ClassName == "TouchTransmitter" and v.Parent.Name == "Mouse" and Toggle == true then -- i am just wondering that the part u wanna esp have these properties u can change them if it doesnt work
+            if v.ClassName == "TouchTransmitter" and v.Parent.Name == "Mouse" and Toggle == true then 
             local BillboardGui = Instance.new("BillboardGui")
             local TextLabel = Instance.new("TextLabel")
             
