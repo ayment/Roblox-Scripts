@@ -213,7 +213,76 @@ local CCV = general:Slider("Change Cheese Value", "This will change ur leaderboa
             game.Players.LocalPlayer.Character.Humanoid.Health = 0
         end
         if t == "Reset all item" then
-            game.Players.LocalPlayer.Character.Humanoid.Health = 0
+ local PurpleKey = game.Players.LocalPlayer.Backpack.PurpleKey
+
+            for i,v in pairs(getconnections(PurpleKey.Changed)) do
+                v:Disable()
+            end
+            
+            PurpleKey:Remove()   
+            local RedCheese = game.Players.LocalPlayer.Backpack.RedCheese
+
+            for i,v in pairs(getconnections(RedCheese.Changed)) do
+                v:Disable()
+            end
+            
+            RedCheese:Remove()   
+            local WhiteKey = game.Players.LocalPlayer.Backpack.WhiteKey
+
+            for i,v in pairs(getconnections(WhiteKey.Changed)) do
+                v:Disable()
+            end
+            
+            WhiteKey:Remove()   
+            local GreenKey = game.Players.LocalPlayer.Backpack.GreenKey
+
+            for i,v in pairs(getconnections(GreenKey.Changed)) do
+                v:Disable()
+            end
+            
+            GreenKey:Remove()   
+            local RedKey = game.Players.LocalPlayer.Backpack.RedKey
+
+            for i,v in pairs(getconnections(RedKey.Changed)) do
+                v:Disable()
+            end
+            
+            RedKey:Remove()   
+            local Board = game.Players.LocalPlayer.Backpack.Board
+
+            for i,v in pairs(getconnections(Board.Changed)) do
+                v:Disable()
+            end
+            
+            Board:Remove()   
+            local BloxyCola = game.Players.LocalPlayer.Backpack.BloxyCola
+
+            for i,v in pairs(getconnections(BloxyCola.Changed)) do
+                v:Disable()
+            end
+            
+            BloxyCola:Remove()   
+            local BlueKey = game.Players.LocalPlayer.Backpack.BlueKey
+
+            for i,v in pairs(getconnections(BlueKey.Changed)) do
+                v:Disable()
+            end
+            
+            BlueKey:Remove()   
+            local YellowKey = game.Players.LocalPlayer.Backpack.YellowKey
+
+            for i,v in pairs(getconnections(YellowKey.Changed)) do
+                v:Disable()
+            end
+            
+            YellowKey:Remove()   
+            local GreyKey = game.Players.LocalPlayer.Backpack.GreyKey
+
+            for i,v in pairs(getconnections(GreyKey.Changed)) do
+                v:Disable()
+            end
+            
+            GreyKey:Remove() 
         end
         if t == "Reset WalkSpeed" then
             WS:Change(20)
