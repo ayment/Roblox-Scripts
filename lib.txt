@@ -1679,6 +1679,74 @@ function Flux:Window(text, bottom,mainclr)
 					
 				end)
 			end
+			function DropFunc:ClearText(clearText)
+				Title.Text = text
+				ItemCount = ItemCount - 1
+				if ItemCount == 1 then
+					FrameSize = 78
+				elseif ItemCount == 2 then
+					FrameSize = 107
+				elseif ItemCount >= 3 then
+					FrameSize = 133
+				end
+				if clearText then
+					for i, v in next, DropItemHolder:GetChildren() do
+						if v.Name == "Item" and v.Text == clearText then
+							v:Destroy()
+						end
+					end
+				else
+					Title.Text = text
+					FrameSize = 0
+					ItemCount = 0
+					for i, v in next, DropItemHolder:GetChildren() do
+						if v.Name == "Item" then
+							v:Destroy()
+						end
+					end
+				end
+				 if DropToggled == true then
+				 	Title.Text = Selected
+				 	Dropdown:TweenSize(UDim2.new(0, 457, 0, 43), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, .6, true)
+				 	TweenService:Create(
+				 		Title,
+				 		TweenInfo.new(.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+				 		{TextColor3 = Color3.fromRGB(255,255,255)}
+				 	):Play()
+				 	TweenService:Create(
+				 		ArrowIco,
+				 		TweenInfo.new(.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+				 		{ImageColor3 = Color3.fromRGB(255,255,255)}
+			 	):Play()
+				 	TweenService:Create(
+				 		ArrowIco,
+				 		TweenInfo.new(.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+				 		{ImageTransparency = .3}
+				 	):Play()
+				 	TweenService:Create(
+				 		ArrowIco,
+				 		TweenInfo.new(.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+				 		{Rotation = 0}
+				 	):Play()
+				 	TweenService:Create(
+				 		Circle,
+				 		TweenInfo.new(.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+				 		{BackgroundColor3 = Color3.fromRGB(211, 211, 211)}
+				 	):Play()
+				 	TweenService:Create(
+				 		CircleSmall,
+				 		TweenInfo.new(.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+				 		{BackgroundTransparency = 1}
+				 	):Play()
+				 	TweenService:Create(
+				 		Title,
+				 		TweenInfo.new(.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+				 		{TextTransparency = 0.3}
+			 	):Play()
+				 	wait(.4)
+				 	Container.CanvasSize = UDim2.new(0, 0, 0, ContainerLayout.AbsoluteContentSize.Y)
+				 end
+			end
 			function DropFunc:Add(addtext)
 
 				ItemCount = ItemCount + 1
