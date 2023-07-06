@@ -245,24 +245,7 @@ end
 
 local parentScreenGui = findScreenGuiWithUI(game:GetService("CoreGui"))
 
-local function ifautoserverhub()
-    spawn(function()
-        while wait() and Settings.serverHop do
-            pcall(function()
-                if Settings.serverHopDelay == 0 then
-                    OrionLib:MakeNotification({
-                        Name = "Error",
-                        Content = "You have to change the Server Hop Delay from 0 to anything you want",
-                        Time = 7
-                    })
-                    return
-                end
-                task.wait(Settings.serverHopDelay * 60)
-                Teleport()
-            end)  
-        end
-    end)
-end
+
 local function jumpHigher()
     while Settings.jumpHigheronDonation do
         game.Players.LocalPlayer.Character.Humanoid.Jump = true
@@ -710,7 +693,22 @@ serverHopTab:AddToggle({
 	Default = Settings.serverHop,
 	Callback = function(t)
         Settings.serverHop = t
-        ifautoserverhub()
+        spawn(function()
+            while wait() and Settings.serverHop do
+                pcall(function()
+                    if Settings.serverHopDelay == 0 then
+                        OrionLib:MakeNotification({
+                            Name = "Error",
+                            Content = "You have to change the Server Hop Delay from 0 to anything you want",
+                            Time = 7
+                        })
+                        return
+                    end
+                    task.wait(Settings.serverHopDelay * 60)
+                    Teleport()
+                end)  
+            end
+        end)
         Save()
 	end    
 })
@@ -779,8 +777,7 @@ menuset:AddToggle({
 	Default = Settings.render,
 	Callback = function(t)
         Settings.render = t
-        Save()
-        if t then
+        if Settings.render then
             local blackscreen = Instance.new("Frame")
             blackscreen.Name = "blackscreens"
             blackscreen.ZIndex = 0
@@ -798,6 +795,7 @@ menuset:AddToggle({
         end
             game:GetService("RunService"):Set3dRenderingEnabled(true)
         end
+        Save()
 	end    
 })
 
@@ -987,16 +985,7 @@ local isOwnedByOtherPlayer = calim:FindFirstChild("Data") and calim.Data:FindFir
     break
     end
 end
-if Settings.render then
-    local blackscreen = Instance.new("Frame")
-    blackscreen.Name = "blackscreens"
-    blackscreen.ZIndex = 0
-    blackscreen.Parent = parentScreenGui
-    blackscreen.BackgroundColor3 = Color3.fromRGB(0,0,0)
-    blackscreen.Position = UDim2.new(-1, 0, -1, 0)
-    blackscreen.Size = UDim2.new(2, 0, 2, 0)
-    game:GetService("RunService"):Set3dRenderingEnabled(false)
-end
+
 if Settings.danceChoice == "1" then
     task.wait(.25)
     Players:Chat("/e dance")
@@ -1007,9 +996,7 @@ end
 if Settings.firstColor and Settings.SecColor and Settings.ThirdColor then
     game:GetService("ReplicatedStorage").UpdateColorEvent:FireServer(Settings.firstColor,Settings.SecColor,Settings.SecColor)
 end
-if Settings.serverHop then
-    ifautoserverhub()
-end
+
 if Settings.autoBeg then
     spamming = task.spawn(begging)
 end
