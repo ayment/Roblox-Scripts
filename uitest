@@ -1205,10 +1205,10 @@ function OrionLib:MakeWindow(WindowConfig)
                         for option, button in pairs(Dropdown.Buttons) do
                             if button.Name == "Content" and button.Text == clearText then
                                 button:Destroy()
-                                table.clear(button.Options)
-                                table.clear(button.Buttons)
                             end
                         end
+                        table.clear(Dropdown.Options)
+                        table.clear(Dropdown.Buttons)
                     else
                         for _, button in pairs(Dropdown.Buttons) do
                             button:Destroy()
