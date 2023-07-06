@@ -162,6 +162,7 @@ local playagain = false
 local baseSpeed = 5 -- Base rotation speed
 local speedMultiplier = 2 -- Speed multiplier for donations
 local rotationSpeed = Settings.rotationSpeed
+
 local function update(ok)
     local texts, colll
     local current = lp.leaderstats.Raised.Value
@@ -229,6 +230,21 @@ local function update(ok)
     end
 
 end
+local function findScreenGuiWithUI(parent)
+    for _, child in pairs(parent:GetChildren()) do
+        if child:IsA("ScreenGui") then
+            -- Check if the ScreenGui contains your UI elements
+            local uiElement = child:FindFirstChild("Orion")
+            if uiElement then
+                return child -- Return the ScreenGui if found
+            end
+        end
+    end
+    return nil -- Return nil if the ScreenGui is not found
+end
+
+local parentScreenGui = findScreenGuiWithUI(game:GetService("CoreGui"))
+
 local function ifautoserverhub()
     spawn(function()
         while wait() and Settings.serverHop do
@@ -410,9 +426,10 @@ booth:AddSlider({
 booth:AddButton({
 	Name = "Booth text",
 	Callback = function()
-        if not game:GetService("CoreGui").EKjDzkHSPJppXexMt.Orion:FindFirstChild("EditSign") then
+        if parentScreenGui then
+        if not parentScreenGui:FindFirstChild("EditSign") then
             local clonedGui = game:GetService("Players").LocalPlayer.PlayerGui.MainGui.Holder.EditSign:Clone()
-            clonedGui.Parent = game:GetService("CoreGui").EKjDzkHSPJppXexMt.Orion
+            clonedGui.Parent = parentScreenGui
             clonedGui.EditBox.Text = Settings.customsBoothText
             clonedGui.EditBox.PlaceholderText = "Booth Message\n $C = Current / $G = Goal /\n$S = rotation Speed"
             clonedGui.Apply.Text = "ADD MESSAGE"
@@ -429,6 +446,7 @@ booth:AddButton({
             end)  
         end
   	end    
+end
 })
 
 booth:AddColorpicker({
@@ -483,9 +501,10 @@ chatTab:AddSlider({
 chatTab:AddButton({
 	Name = "Add thank you message",
 	Callback = function()
-        if not game:GetService("CoreGui").EKjDzkHSPJppXexMt.Orion:FindFirstChild("EditSign") then
+        if parentScreenGui then
+        if not parentScreenGui:FindFirstChild("EditSign") then
             local clonedGui = game:GetService("Players").LocalPlayer.PlayerGui.MainGui.Holder.EditSign:Clone()
-            clonedGui.Parent = game:GetService("CoreGui").EKjDzkHSPJppXexMt.Orion
+            clonedGui.Parent = parentScreenGui
             clonedGui.EditBox.Text = ""
             clonedGui.EditBox.PlaceholderText = "Message"
             clonedGui.Apply.Text = "ADD MESSAGE"
@@ -501,7 +520,8 @@ chatTab:AddButton({
                 clonedGui:Remove()
             end)  
         end 
-  	end    
+  	end   
+end 
 })
 local tymsg = {"CLEAR ALL"}
 for i, v in pairs(Settings.ThanksList) do
@@ -569,9 +589,10 @@ chatTab:AddSlider({
 chatTab:AddButton({
 	Name = "Add begging message",
 	Callback = function()
-        if not game:GetService("CoreGui").EKjDzkHSPJppXexMt.Orion:FindFirstChild("EditSign") then
+        if parentScreenGui then
+        if not parentScreenGui:FindFirstChild("EditSign") then
             local clonedGui = game:GetService("Players").LocalPlayer.PlayerGui.MainGui.Holder.EditSign:Clone()
-            clonedGui.Parent = game:GetService("CoreGui").EKjDzkHSPJppXexMt.Orion
+            clonedGui.Parent = parentScreenGui
             clonedGui.EditBox.Text = ""
             clonedGui.EditBox.PlaceholderText = "Message"
             clonedGui.Apply.Text = "ADD MESSAGE"
@@ -588,6 +609,7 @@ chatTab:AddButton({
             end)  
         end 
   	end    
+end
 })
 local bmsg = {"CLEAR ALL"}
 for i, v in pairs(Settings.BagList) do 
@@ -762,16 +784,18 @@ menuset:AddToggle({
             local blackscreen = Instance.new("Frame")
             blackscreen.Name = "blackscreens"
             blackscreen.ZIndex = 0
-            blackscreen.Parent = game:GetService("CoreGui").EKjDzkHSPJppXexMt.Orion
+            blackscreen.Parent = parentScreenGui
             blackscreen.BackgroundColor3 = Color3.fromRGB(0,0,0)
             blackscreen.Position = UDim2.new(-1, 0, -1, 0)
             blackscreen.Size = UDim2.new(2, 0, 2, 0)
             game:GetService("RunService"):Set3dRenderingEnabled(false)
             
         else
-            if game:GetService("CoreGui").EKjDzkHSPJppXexMt.Orion:FindFirstChild("blackscreens") then
-                game:GetService("CoreGui").EKjDzkHSPJppXexMt.Orion:FindFirstChild("blackscreens"):Destroy()
+            if parentScreenGui then
+            if parentScreenGui:FindFirstChild("blackscreens") then
+                parentScreenGui:FindFirstChild("blackscreens"):Destroy()
             end
+        end
             game:GetService("RunService"):Set3dRenderingEnabled(true)
         end
 	end    
@@ -967,7 +991,7 @@ if Settings.render then
     local blackscreen = Instance.new("Frame")
     blackscreen.Name = "blackscreens"
     blackscreen.ZIndex = 0
-    blackscreen.Parent = game:GetService("CoreGui").EKjDzkHSPJppXexMt.Orion
+    blackscreen.Parent = parentScreenGui
     blackscreen.BackgroundColor3 = Color3.fromRGB(0,0,0)
     blackscreen.Position = UDim2.new(-1, 0, -1, 0)
     blackscreen.Size = UDim2.new(2, 0, 2, 0)
