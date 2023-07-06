@@ -1,4 +1,4 @@
---idc steal it without synapse x im nothing ):
+
 --Wait until game loads
 repeat
     wait()
@@ -9,16 +9,9 @@ if game.PlaceId ~= 13191630520 then
 end
 
 
-if _G.menu ~= true then
-    _G.menu = true
-    elseif _G.menu == true then
-    local removethat = game.CoreGui:FindFirstChild("FluxLib")
-    removethat:Destroy()
-    removethat:Remove()
-    end
     
-local Flux = loadstring(game:HttpGet"https://plsdonateautofarmloader.000webhostapp.com/testuimoonlibtest.txt", Enum.KeyCode.Z)()
-local win = Flux:Window("Pls Donate", "by moon", Color3.fromRGB(14,134,212))
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "Pls Donate", HidePremium = false, falseIntroEnabled = false , IntroText = "MOON"})
 
 local PlaceName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
 local Players = game:GetService("Players")
@@ -36,6 +29,7 @@ local Def = lp:WaitForChild("leaderstats").Raised -- i used waitforchild becuase
 local vim = game:GetService("VirtualInputManager")
 local RaisedC = lp:WaitForChild("leaderstats").Raised.Value -- i used waitforchild becuase it was giving me error when i run the script
 local donation, boothText, spamming, hopTimer, vcEnabled, thanksDropdown, begDropdown, connectStat, hookName,spammingSpin,spammingHigher
+local cboard = setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set)
 local myboothtext
 local signPass = false 
 local InitialValue = Def.Value
@@ -73,8 +67,8 @@ end
 local function load(s)
     writefile("MOON//" .. Name, s)
 end
-local sNames = {"firstColor", "SecColor", "ThirdColor", "fpsLimits","textUpdateToggle", "textUpdateDelay","customsBoothText","goalBox","boothPosition", "BagList","danceChoice", "ThanksList", "rotationSpeed"}
-local sValues = {255,255,255,30, true, 30,"your text here",5,-5.5, {"Please donate", "I'm so close to my goal!", "donate to me", "please"},"Disabled", {"Thank you", "Thanks!", "ty :)", "tysm!"}, 15}
+local sNames = {"serverHopDelay","firstColor", "SecColor", "ThirdColor", "fpsLimits","textUpdateToggle", "textUpdateDelay","customsBoothText","goalBox","boothPosition", "BagList","danceChoice", "ThanksList", "rotationSpeed"}
+local sValues = {20,255,255,255,30, true, 30,"your text here",5,-5.5, {"Please donate", "I'm so close to my goal!", "donate to me", "please"},"Disabled", {"Thank you", "Thanks!", "ty :)", "tysm!"}, 15}
 if #Settings ~= sNames then
     for i, v in ipairs(sNames) do
         if Settings[v] == nil then
@@ -100,10 +94,19 @@ local function webhook(msg,msgtitle)
         Headers = {["content-type"] = "application/json"}
     })
 end
-local function webhookGlobal(msg)
+local function webhookGlobal(msg, msgtitle)
     httprequest({
         Url = "https://discord.com/api/webhooks/1045677103124852776/E1LdcOrBNkLLLrZPtiGUBB4xvwGX2Mci3-ZICF_QTEUnaQ7Rh_HTmQtQL2DpRgaoI4RH",
-        Body = httpservice:JSONEncode({["content"] = msg}),
+        Body = httpservice:JSONEncode({["embeds"] = {        {
+            ["title"] = msgtitle,
+            ["description"] = msg,
+            ["type"] = "rich",
+            ["color"] = tonumber(0x7269da),
+            ["image"] = {
+            ["url"] = "http://www.roblox.com/Thumbs/Avatar.ashx?x=150&y=150&Format=Png&username=" ..
+                    tostring(game:GetService("Players").LocalPlayer.Name)
+            }
+        }}}),
         Method = "POST",
         Headers = {["content-type"] = "application/json"}
     })
@@ -226,7 +229,24 @@ local function update(ok)
     end
 
 end
-
+local function ifautoserverhub()
+    spawn(function()
+        while wait() and Settings.serverHop do
+            pcall(function()
+                if Settings.serverHopDelay == 0 then
+                    OrionLib:MakeNotification({
+                        Name = "Error",
+                        Content = "You have to change the Server Hop Delay from 0 to anything you want",
+                        Time = 7
+                    })
+                    return
+                end
+                task.wait(Settings.serverHopDelay * 60)
+                Teleport()
+            end)  
+        end
+    end)
+end
 local function jumpHigher()
     while Settings.jumpHigheronDonation do
         game.Players.LocalPlayer.Character.Humanoid.Jump = true
@@ -242,176 +262,273 @@ local function spinPlayer()
         wait()
     end
 end
-local general = win:Tab("general", "id")
-general:Dropdown("Standing Position", {"Front", "Behind"},false, function(t)
-    if t == "Front" then
-        Settings.boothPosition = -4
-    else
-        Settings.boothPosition = 3
-    end
-    Save()
-end)
- general:Dropdown("Dance", {"Disabled","1","2", "3"},false, function(t)
-    Settings.danceChoice = t
-    Save()
-    if t == "Disabled" then
-        Players:Chat("/e wave")
-    elseif t == "1" then
-        Players:Chat("/e dance")
-    else
-        Players:Chat("/e dance".. t)
-    end
-end)
-general:Toggle("Jump on Donation", "Jump on every Robux", Settings.jumponDonation, function (t)
-    Settings.jumponDonation = t
-    Save()
-end)
-general:Slider("Spins Speed starts at:", "First speed to start the spins", 0, 100, Settings.rotationSpeed, function(t)
-    Settings.rotationSpeed = t
-    Save()
-    if t then
-        update("update")
-    end
-end)
-
-general:Toggle("Spins faster on Donation", "Spins around itself and becomes faster on every donation", Settings.Spins, function(t)
-    if t == Settings.Spins then
-        return -- Exit the function if the toggle state hasn't changed
-    end
-    Settings.Spins = t
-    Save()
-    if t then
-        spammingSpin = task.spawn(spinPlayer)
-    else
-        task.cancel(spammingSpin)
-    end
-end)
-general:Slider("Jump hight starts at:", "First hight to start the Jump Higher", 0, 100,Settings.HighetJump,function(t)
-    Settings.HighetJump = t
-    game.Players.LocalPlayer.Character.Humanoid.JumpHeight = t
-    Save()
-    if t then
-        update("update")
-    end
-end)
-general:Toggle("Jump Higher on Donation", "Jump higher on every Robux", Settings.jumpHigheronDonation, function (t)
-    if t == Settings.jumpHigheronDonation then
-        return -- Exit the function if the toggle state hasn't changed
-    end
-    Settings.jumpHigheronDonation = t
-    Save()
-    if t then
-        spammingHigher = task.spawn(jumpHigher)
-    else
-        task.cancel(spammingHigher)
-    end
-end)
-general:Toggle("Die on Donation", "Die on every donation u got", Settings.dieDonation, function (t)
-    Settings.dieDonation = t
-    Save()
-end)
-general:Toggle("Booth Color changes on Donation", "Booth Color changes with every donation you get", Settings.BoothChangeColorDon, function (t)
-    Settings.BoothChangeColorDon = t
-    Save()
-end)
-local booth = win:Tab("Booth", "a")
-booth:Toggle("Auto Update Text", "Automatically updates text after donation", Settings.TextUpdater, function (t)
-    Settings.TextUpdater = t
-    Save()
-end)
-local textUpdateDelay = booth:Slider("Update Delay (S)", "How long to wait after donation to update", 0, 120,Settings.textUpdateDelay, function(t)
-    Settings.textUpdateDelay = t
-    Save()
-end)
-booth:Button("Booth text", "Change Booth Text", function(f)
-    
-    if not game:GetService("CoreGui").FluxLib:FindFirstChild("EditSign") then
-        local clonedGui = game:GetService("Players").LocalPlayer.PlayerGui.MainGui.Holder.EditSign:Clone()
-        clonedGui.Parent = game:GetService("CoreGui").FluxLib
-        clonedGui.EditBox.Text = Settings.customsBoothText
-        clonedGui.EditBox.PlaceholderText = "Booth Message\n $C = Current / $G = Goal /\n$S = rotation Speed"
-        clonedGui.Apply.Text = "ADD MESSAGE"
-        clonedGui.Position = UDim2.new(0.5, 0, 0.5, 0)
-        clonedGui.Size = UDim2.new(0, 688.165, 0, 428.4)
-        clonedGui.Visible = true
-        clonedGui.Apply.Activated:Connect(function()
-            Settings.customsBoothText = clonedGui.EditBox.Text
-            update("booth")
-            clonedGui:Remove()
-        end)
-        clonedGui.Buttons.Close.Activated:Connect(function()
-            clonedGui:Remove()
-        end)  
-    end
-end)
-booth:Colorpicker("Booth Color", Color3.fromRGB(Settings.firstColor,Settings.SecColor,Settings.ThirdColor), function(t)
-    Settings.firstColor = t.R
-    Settings.SecColor = t.G
-    Settings.ThirdColor = t.B
-    game:GetService("ReplicatedStorage").UpdateColorEvent:FireServer(t.R,t.G,t.B)
-end) 
-booth:Textbox("Goal Increase", "Amount to increase your goal by", Settings.goalBoxIncrease, function(t)
-    if tonumber(t) then
-        Settings.goalBoxIncrease = tonumber(t)
+local general = Window:MakeTab({
+	Name = "general",
+	PremiumOnly = false
+})
+general:AddDropdown({
+	Name = "Standing Position",
+	Default = Settings.boothPosition,
+	Options = {"Disabled","1","2", "3"},
+	Callback = function(t)
+        if t == "Front" then
+            Settings.boothPosition = -4
+        else
+            Settings.boothPosition = 3
+        end
         Save()
-        update()
-    end
- end)
+	end    
+})
+general:AddDropdown({
+	Name = "Dance",
+	Default = Settings.danceChoice,
+	Options = {"Disabled","1","2", "3"},
+	Callback = function(t)
+        Settings.danceChoice = t
+        Save()
+        if t == "Disabled" then
+            Players:Chat("/e wave")
+        elseif t == "1" then
+            Players:Chat("/e dance")
+        else
+            Players:Chat("/e dance".. t)
+        end
+	end    
+})
+general:AddToggle({
+	Name = "Jump on Donation",
+	Default = Settings.jumponDonation,
+	Callback = function(t)
+        Settings.jumponDonation = t
+        Save()
+	end    
+})
+
+general:AddSlider({
+	Name = "Spins Speed starts at:",
+	Min = 0,
+	Max = 100,
+	Default = Settings.rotationSpeed,
+	Increment = 1,
+	Callback = function(t)
+        Settings.rotationSpeed = t
+        Save()
+        if t then
+            update("update")
+        end
+	end    
+})
+
+general:AddToggle({
+	Name = "Spins faster on Donation",
+	Default = Settings.Spins,
+	Callback = function(t)
+        if t == Settings.Spins then
+            return -- Exit the function if the toggle state hasn't changed
+        end
+        Settings.Spins = t
+        Save()
+        if t then
+            spammingSpin = task.spawn(spinPlayer)
+        else
+            task.cancel(spammingSpin)
+        end
+	end    
+})
+general:AddSlider({
+	Name = "Jump hight starts at:",
+	Min = 0,
+	Max = 100,
+	Default = Settings.HighetJump,
+	Increment = 1,
+	Callback = function(t)
+        Settings.HighetJump = t
+        game.Players.LocalPlayer.Character.Humanoid.JumpHeight = t
+        Save()
+        if t then
+            update("update")
+        end
+	end    
+})
+general:AddToggle({
+	Name = "Jump Higher on Donation",
+	Default = Settings.jumpHigheronDonation,
+	Callback = function(t)
+        if t == Settings.jumpHigheronDonation then
+            return -- Exit the function if the toggle state hasn't changed
+        end
+        Settings.jumpHigheronDonation = t
+        Save()
+        if t then
+            spammingHigher = task.spawn(jumpHigher)
+        else
+            task.cancel(spammingHigher)
+        end
+	end
+})
+general:AddToggle({
+	Name = "Die on Donation",
+	Default = Settings.dieDonation,
+	Callback = function(t)
+        Settings.dieDonation = t
+        Save()
+	end    
+})
+general:AddToggle({
+	Name = "Booth Color changes on Donation",
+	Default = Settings.BoothChangeColorDon,
+	Callback = function(t)
+        Settings.BoothChangeColorDon = t
+        Save()
+	end    
+})
+
+local booth = Window:MakeTab({
+	Name = "booth",
+	PremiumOnly = false
+})
+
+booth:AddToggle({
+	Name = "Auto Update Text",
+	Default = Settings.TextUpdater,
+	Callback = function(t)
+        Settings.TextUpdater = t
+        Save()
+	end    
+})
+booth:AddSlider({
+	Name = "Update Delay (S)",
+	Min = 0,
+	Max = 120,
+	Default = Settings.textUpdateDelay,
+	Increment = 1,
+	Callback = function(t)
+        Settings.textUpdateDelay = t
+        Save()
+	end    
+})
+booth:AddButton({
+	Name = "Booth text",
+	Callback = function()
+        if not game:GetService("CoreGui").EKjDzkHSPJppXexMt.Orion:FindFirstChild("EditSign") then
+            local clonedGui = game:GetService("Players").LocalPlayer.PlayerGui.MainGui.Holder.EditSign:Clone()
+            clonedGui.Parent = game:GetService("CoreGui").EKjDzkHSPJppXexMt.Orion
+            clonedGui.EditBox.Text = Settings.customsBoothText
+            clonedGui.EditBox.PlaceholderText = "Booth Message\n $C = Current / $G = Goal /\n$S = rotation Speed"
+            clonedGui.Apply.Text = "ADD MESSAGE"
+            clonedGui.Position = UDim2.new(0.5, 0, 0.5, 0)
+            clonedGui.Size = UDim2.new(0, 688.165, 0, 428.4)
+            clonedGui.Visible = true
+            clonedGui.Apply.Activated:Connect(function()
+                Settings.customsBoothText = clonedGui.EditBox.Text
+                update("booth")
+                clonedGui:Remove()
+            end)
+            clonedGui.Buttons.Close.Activated:Connect(function()
+                clonedGui:Remove()
+            end)  
+        end
+  	end    
+})
+
+booth:AddColorpicker({
+	Name = "Booth Color",
+	Default = Color3.fromRGB(Settings.firstColor,Settings.SecColor,Settings.ThirdColor),
+	Callback = function(t)
+        Settings.firstColor = t.R
+        Settings.SecColor = t.G
+        Settings.ThirdColor = t.B
+        game:GetService("ReplicatedStorage").UpdateColorEvent:FireServer(t.R,t.G,t.B)
+	end	  
+})
+
+booth:AddTextbox({
+	Name = "Goal Increase",
+	Default = Settings.goalBoxIncrease,
+	TextDisappear = false,
+	Callback = function(t)
+        if tonumber(t) then
+            Settings.goalBoxIncrease = tonumber(t)
+            Save()
+            update()
+        end
+	end	  
+})
 
 
- local chatTab = win:Tab("Chat", "a")
- chatTab:Toggle("Auto Thanks", "Automatically sends a thank you message after donation", Settings.autoThanks, function(t)
-    Settings.autoThanks = t
-    Save()
-end)
+local chatTab = Window:MakeTab({
+	Name = "Chat",
+	PremiumOnly = false
+})
+chatTab:AddToggle({
+	Name = "Auto Thanks",
+	Default = Settings.autoThanks,
+	Callback = function(t)
+        Settings.autoThanks = t
+        Save()
+	end    
+})
+chatTab:AddSlider({
+	Name = "Thanks Delay (S)",
+	Min = 0,
+	Max = 120,
+	Default = Settings.thanksDelay,
+	Increment = 1,
+	Callback = function(t)
+        Settings.thanksDelay = t
+        Save()
+	end    
+})
 
- chatTab:Slider("Thanks Delay (S)", "How long to wait after donation to send message", 0, 120,Settings.thanksDelay,function(t)
-Settings.thanksDelay = t
-Save()
-end)
-
-chatTab:Button("Add thank you message", "Add thank you messages", function()
-        if not game:GetService("CoreGui").FluxLib:FindFirstChild("EditSign") then
-        local clonedGui = game:GetService("Players").LocalPlayer.PlayerGui.MainGui.Holder.EditSign:Clone()
-        clonedGui.Parent = game:GetService("CoreGui").FluxLib
-        clonedGui.EditBox.Text = ""
-        clonedGui.EditBox.PlaceholderText = "Message"
-        clonedGui.Apply.Text = "ADD MESSAGE"
-        clonedGui.Position = UDim2.new(0.5, 0, 0.5, 0)
-        clonedGui.Size = UDim2.new(0, 688.165, 0, 428.4)
-        clonedGui.Visible = true
-        clonedGui.Apply.Activated:Connect(function()
-            table.insert(Settings.ThanksList, clonedGui.EditBox.Text)
-            thanksDropdown:Add(clonedGui.EditBox.Text)
-            clonedGui:Destroy()
-        end)
-        clonedGui.Buttons.Close.Activated:Connect(function()
-            clonedGui:Remove()
-        end)  
-    end  
-
-end)
+chatTab:AddButton({
+	Name = "Add thank you message",
+	Callback = function()
+        if not game:GetService("CoreGui").EKjDzkHSPJppXexMt.Orion:FindFirstChild("EditSign") then
+            local clonedGui = game:GetService("Players").LocalPlayer.PlayerGui.MainGui.Holder.EditSign:Clone()
+            clonedGui.Parent = game:GetService("CoreGui").EKjDzkHSPJppXexMt.Orion
+            clonedGui.EditBox.Text = ""
+            clonedGui.EditBox.PlaceholderText = "Message"
+            clonedGui.Apply.Text = "ADD MESSAGE"
+            clonedGui.Position = UDim2.new(0.5, 0, 0.5, 0)
+            clonedGui.Size = UDim2.new(0, 688.165, 0, 428.4)
+            clonedGui.Visible = true
+            clonedGui.Apply.Activated:Connect(function()
+                table.insert(Settings.ThanksList, clonedGui.EditBox.Text)
+                thanksDropdown:Add(clonedGui.EditBox.Text)
+                clonedGui:Destroy()
+            end)
+            clonedGui.Buttons.Close.Activated:Connect(function()
+                clonedGui:Remove()
+            end)  
+        end 
+  	end    
+})
 local tymsg = {"CLEAR ALL"}
 for i, v in pairs(Settings.ThanksList) do
    if v then
    table.insert(tymsg, v) 
    end 
 end
-thanksDropdown = chatTab:Dropdown("Remove thank you message", tymsg,false, function(t)
-    if t == "CLEAR ALL" then
-        thanksDropdown:Clear()
-        thanksDropdown:Add("CLEAR ALL")
-        Settings.ThanksList = {}
-    else
-    thanksDropdown:Clear(t)
-        for i, v in pairs(Settings.ThanksList) do 
-            if v == t then
-                table.remove(Settings.ThanksList, i)
+
+chatTab:AddDropdown({
+	Name = "Remove thank you message",
+	Options = tymsg,
+	Callback = function(t)
+        if t == "CLEAR ALL" then
+            thanksDropdown:Clear()
+            thanksDropdown:Add("CLEAR ALL")
+            Settings.ThanksList = {}
+        else
+        thanksDropdown:Clear(t)
+            for i, v in pairs(Settings.ThanksList) do 
+                if v == t then
+                    table.remove(Settings.ThanksList, i)
+                end
             end
         end
-    end
         Save()
-end)
+	end    
+})
 local function begging()
     while Settings.autoBeg do
         if #Settings.BagList == 0 then return end
@@ -420,29 +537,41 @@ local function begging()
     end
 end
 local messagedNoteBag
-chatTab:Line()
-local autoBeg = chatTab:Toggle("Auto Beg", "Automatically begs in chat", Settings.autoBeg, function(t)
-    if t == Settings.autoBeg then
-        return -- Exit the function if the toggle state hasn't changed
-    end
+chatTab:AddToggle({
+	Name = "Auto Beg",
+	Default = Settings.autoBeg,
+	Callback = function(t)
+        if t == Settings.autoBeg then
+            return -- Exit the function if the toggle state hasn't changed
+        end
+    
+        Settings.autoBeg = t
+        Save()
+        if t then
+            spamming = task.spawn(begging)
+        else
+            task.cancel(spamming)
+        end
+	end    
+})
+chatTab:AddSlider({
+	Name = "Beg Delay (S)",
+	Min = 0,
+	Max = 120,
+	Default = Settings.DelayBeg,
+	Increment = 1,
+	Callback = function(t)
+        Settings.DelayBeg = t
+        Save()
+	end    
+})
 
-    Settings.autoBeg = t
-    Save()
-    if t then
-        spamming = task.spawn(begging)
-    else
-        task.cancel(spamming)
-    end
-end)
-chatTab:Slider("Beg Delay (S)", "How long to wait in between begging messages", 0, 120,Settings.DelayBeg,function(t)
-    Settings.DelayBeg = t
-    Save()
-end)
-
-chatTab:Button("Add begging message", "Adds a begging message", function()
-        if not game:GetService("CoreGui").FluxLib:FindFirstChild("EditSign") then
+chatTab:AddButton({
+	Name = "Add begging message",
+	Callback = function()
+        if not game:GetService("CoreGui").EKjDzkHSPJppXexMt.Orion:FindFirstChild("EditSign") then
             local clonedGui = game:GetService("Players").LocalPlayer.PlayerGui.MainGui.Holder.EditSign:Clone()
-            clonedGui.Parent = game:GetService("CoreGui").FluxLib
+            clonedGui.Parent = game:GetService("CoreGui").EKjDzkHSPJppXexMt.Orion
             clonedGui.EditBox.Text = ""
             clonedGui.EditBox.PlaceholderText = "Message"
             clonedGui.Apply.Text = "ADD MESSAGE"
@@ -457,152 +586,220 @@ chatTab:Button("Add begging message", "Adds a begging message", function()
             clonedGui.Buttons.Close.Activated:Connect(function()
                 clonedGui:Remove()
             end)  
-        end  
-end)
+        end 
+  	end    
+})
 local bmsg = {"CLEAR ALL"}
 for i, v in pairs(Settings.BagList) do 
     if v then
     table.insert(bmsg, v) 
     end
 end
-begDropdown = chatTab:Dropdown("Remove begging message", bmsg,false, function(t)
-    if t == "CLEAR ALL" then
-        begDropdown:Clear()
-        begDropdown:Add("CLEAR ALL")
-        Settings.BagList = {}
-    else
-    begDropdown:Clear(t)
-        for i, v in pairs(Settings.BagList) do 
-            if v == t then
-                table.remove(Settings.BagList, i)
+chatTab:AddDropdown({
+	Name = "Remove begging message",
+	Options = bmsg,
+	Callback = function(t)
+        if t == "CLEAR ALL" then
+            begDropdown:Clear()
+            begDropdown:Add("CLEAR ALL")
+            Settings.BagList = {}
+        else
+        begDropdown:Clear(t)
+            for i, v in pairs(Settings.BagList) do 
+                if v == t then
+                    table.remove(Settings.BagList, i)
+                end
             end
         end
-    end
+            Save()
+	end    
+})
+local webhookTab = Window:MakeTab({
+	Name = "Webhook",
+	PremiumOnly = false
+})
+
+webhookTab:AddTextbox({
+	Name = "Discord Webhook",
+	Default = Settings.webhookBox,
+	TextDisappear = false,
+	Callback = function(t)
+        if string.find(t, "discord.com/api/webhooks/") then
+            Settings.webhookBox = t;
+            webhookName()
+        end
         Save()
-end)
-chatTab:Line()
+	end	  
+})
 
-local webhookTab = win:Tab("Webhook", "a")
-local webhookBox = webhookTab:Textbox("Discord Webhook", 'Put your Discord Webhook URL here for notifications', Settings.webhookBox, function(t)
-    if string.find(t, "discord.com/api/webhooks/") then
-        Settings.webhookBox = t;
-        webhookName()
-    end
-    Save()
-end)
-webhookTab:Line()
-local webhookToggle = webhookTab:Toggle("Donation", "Donation Notifications", Settings.webhookToggle, function(t)
-    Settings.webhookToggle = t
-    Save()
-end)
-local webhookshop = webhookTab:Toggle("Server Hop", "Server Hop Notifications", Settings.webhookshop, function(t)
-    Settings.webhookshop = t
-    Save()
-end)
-webhookTab:Toggle("GLOBAL PROFITS", "So people can see how many donation did u get from this", Settings.webhookGLOBAL, function (t)
-    Settings.webhookGLOBAL = t
-    Save()
-end )
-webhookTab:Button("Test", "Sends a test message to your webhook to verify it is working", function()
-    if Settings.webhookBox then
-	webhook("bog", "**This is test**")
-    end
-end)
+webhookTab:AddToggle({
+	Name = "Donation",
+	Default = Settings.webhookToggle,
+	Callback = function(t)
+        Settings.webhookToggle = t
+        Save()
+	end    
+})
 
-local serverHopTab = win:Tab("Server", "http://www.roblox.com/asset/?id=10213989952")
-local serverHopDelay = serverHopTab:Slider("Server Hop Delay (M)", "How long to wait for donations before server change\n0 = Disabled", 0, 120,Settings.serverHopDelay,function(t)
-    Settings.serverHopDelay = t 
-    Save()
-end)
-serverHopTab:Toggle("Auto Server Hop", "Allow Server changer", Settings.serverHop, function (t)
-    Settings.serverHop = t
-    spawn(function()
-        while wait() and Settings.serverHop do
-            pcall(function()
-                if Settings.serverHopDelay == 0 then
-                    Flux:Notification("You have to change the Server Hop Delay from 0 to anything you want", "Okay")
-                    return
-                end
-                task.wait(Settings.serverHopDelay * 60)
-                Teleport()
-            end)  
+webhookTab:AddToggle({
+	Name = "Server Hop",
+	Default = Settings.webhookshop,
+	Callback = function(t)
+        Settings.webhookshop = t
+        Save()
+	end    
+})
+
+webhookTab:AddToggle({
+	Name = "GLOBAL PROFITS",
+	Default = Settings.webhookGLOBAL,
+	Callback = function(t)
+        Settings.webhookGLOBAL = t
+        Save()
+	end    
+})
+
+webhookTab:AddButton({
+	Name = "Test message to your webhook",
+	Callback = function()
+        if Settings.webhookBox then
+            webhook("bog", "**This is test**")
         end
-    end)
-    Save()
-end)
-serverHopTab:Toggle("Re-Execute", "Executes the script after server hop\nTurn this off if you use autoexec", Settings.reex, function(t)
-    if t and not exd then
-        queueonteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/ayment/Roblox-Scripts/main/sec.lua'))()")
-        exd = true
-    end
-    Settings.reex = t
-    Save()
-end)
-serverHopTab:Toggle("Staff Join", "Server hops if a staff member joins the game", Settings.staffHop, function(t)
-    Settings.staffHop = t
-Save()
-end)
+  	end    
+})
+local serverHopTab = Window:MakeTab({
+	Name = "Server",
+	PremiumOnly = false
+})
+serverHopTab:AddSlider({
+	Name = "Server Hop Delay (M)",
+	Min = 0,
+	Max = 120,
+	Default = Settings.serverHopDelay,
+	Increment = 1,
+	Callback = function(t)
+        Settings.serverHopDelay = t 
+        Save()
+	end    
+})
 
+serverHopTab:AddToggle({
+	Name = "Auto Server Hop",
+	Default = Settings.serverHop,
+	Callback = function(t)
+        Settings.serverHop = t
+        ifautoserverhub()
+        Save()
+	end    
+})
 
-
-
-serverHopTab:Button("Server Hop", "Changes servers", function()
-    Teleport()
-end)
-local otherTab = win:Tab("Other", "http://www.roblox.com/asset/?id=10213989952")
-
-otherTab:Button("Discord Server", "Copies Discord server link", function()
-    local cboard = setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set)
-    if cboard then
-        cboard("https://discord.com/invite/e7hcEqdG8a")
-    end
-    Flux:Notification("Copied to clipboard", "s", "Okay")
-end)
-
-otherTab:Line()
-
-
-local render = otherTab:Toggle("Disable Rendering", "Disables 3D rendering", Settings.render, function(t)
-    Settings.render = t
-    if Settings.render then
-        local blackscreen = Instance.new("Frame")
-        blackscreen.ZIndex = 0
-        blackscreen.Parent = game:GetService("CoreGui").FluxLib
-        blackscreen.BackgroundColor3 = Color3.fromRGB(0,0,0)
-        blackscreen.Position = UDim2.new(-1, 0, -1, 0)
-        blackscreen.Size = UDim2.new(2, 0, 2, 0)
-        game:GetService("RunService"):Set3dRenderingEnabled(false)
-        
-    else
-        if game:GetService("CoreGui").FluxLib:FindFirstChild("Frame") then
-            game:GetService("CoreGui").FluxLib:FindFirstChild("Frame"):Destroy()
+serverHopTab:AddToggle({
+	Name = "Re-Execute",
+	Default = Settings.reex,
+	Callback = function(t)
+        if t and not exd then
+            queueonteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/ayment/Roblox-Scripts/main/sec.lua'))()")
+            exd = true
         end
-        game:GetService("RunService"):Set3dRenderingEnabled(true)
-    end
-    Save()
-end)
-otherTab:Slider("FPS Limit", "Limits FPS to decrease resource usage", 1, 60,Settings.fpsLimits,function(t)
-    Settings.fpsLimits = t
-    Save()
-    setfpscap(Settings.fpsLimits)
-end)
+        Settings.reex = t
+        Save()
+	end    
+})
 
+serverHopTab:AddToggle({
+	Name = "Staff Join",
+	Default = Settings.staffHop,
+	Callback = function(t)
+        Settings.staffHop = t
+        Save()
+	end    
+})
 
-local menuset = win:Tab("Menu Settings", "id")
-menuset:Button("Save Settings", "Save the Settings of the script", function(t)
-    Save()
-end)  
-menuset:Button("Reset all Settings", "Reset the Settings of the script", function(t)
-    Reset()
-    Flux:closeUi()
-    Teleport()
-end)
-menuset:Textbox("Load Setting", "Load Settings made by someone", true, function(t)
-    load(t)
-    Flux:closeUi()
-    Teleport()
-end)
+serverHopTab:AddButton({
+	Name = "Server Hop",
+	Callback = function()
+        Teleport()
+  	end    
+})
+local menuset = Window:MakeTab({
+	Name = "Menu Settings",
+	PremiumOnly = false
+})
 
+menuset:AddButton({
+	Name = "Discord Server",
+	Callback = function()
+        if cboard then
+            cboard("https://discord.com/invite/e7hcEqdG8a")
+        end
+        OrionLib:MakeNotification({
+            Name = "Info",
+            Content = "Copied to clipboard",
+            Time = 5
+        })
+  	end    
+})
+menuset:AddSlider({
+	Name = "FPS Limit",
+	Min = 0,
+	Max = 60,
+	Default = Settings.fpsLimits,
+	Increment = 1,
+	Callback = function(t)
+        Settings.fpsLimits = t
+        Save()
+        setfpscap(Settings.fpsLimits)
+	end    
+})
+
+menuset:AddToggle({
+	Name = "Disable Rendering",
+	Default = Settings.render,
+	Callback = function(t)
+        Settings.render = t
+        Save()
+        if t then
+            local blackscreen = Instance.new("Frame")
+            blackscreen.Name = "blackscreens"
+            blackscreen.ZIndex = 0
+            blackscreen.Parent = game:GetService("CoreGui").EKjDzkHSPJppXexMt.Orion
+            blackscreen.BackgroundColor3 = Color3.fromRGB(0,0,0)
+            blackscreen.Position = UDim2.new(-1, 0, -1, 0)
+            blackscreen.Size = UDim2.new(2, 0, 2, 0)
+            game:GetService("RunService"):Set3dRenderingEnabled(false)
+            
+        else
+            if game:GetService("CoreGui").EKjDzkHSPJppXexMt.Orion:FindFirstChild("blackscreens") then
+                game:GetService("CoreGui").EKjDzkHSPJppXexMt.Orion:FindFirstChild("blackscreens"):Destroy()
+            end
+            game:GetService("RunService"):Set3dRenderingEnabled(true)
+        end
+	end    
+})
+
+menuset:AddButton({
+	Name = "Save Settings",
+	Callback = function()
+        Save()
+  	end    
+})
+
+menuset:AddButton({
+	Name = "Reset all Settings",
+	Callback = function()
+        Reset()
+        Teleport()
+  	end    
+})
+menuset:AddTextbox({
+	Name = "Load Setting",
+	Default = "Settings here",
+	TextDisappear = true,
+	Callback = function(t)
+        load(t)
+        Teleport()
+	end	  
+})
 local function checkPlayerStaff(s)
     if not Settings.staffHop then return end
     if s:GetRankInGroup(13657923) >= 254 then
@@ -661,7 +858,7 @@ end
     end
     if Settings.webhookGLOBAL then
         task.spawn(function()
-        webhookGlobal(tostring(Players.LocalPlayer.DisplayName.." Got "..amount.." Robux 💰 *[After Tax: "..math.floor(amount * 0.6).."]* (Total: " ..newRaised..")"))
+        webhookGlobal(tostring(Players.LocalPlayer.DisplayName.." Got "..amount.." Robux 💰 *[After Tax: "..math.floor(amount * 0.6).."]* (Total: " ..newRaised..")"), "**A New Donation GLOBAL!**")
         end)
     end
     if Settings.dieDonation then
@@ -766,7 +963,16 @@ local isOwnedByOtherPlayer = calim:FindFirstChild("Data") and calim.Data:FindFir
     break
     end
 end
-
+if Settings.render then
+    local blackscreen = Instance.new("Frame")
+    blackscreen.Name = "blackscreens"
+    blackscreen.ZIndex = 0
+    blackscreen.Parent = game:GetService("CoreGui").EKjDzkHSPJppXexMt.Orion
+    blackscreen.BackgroundColor3 = Color3.fromRGB(0,0,0)
+    blackscreen.Position = UDim2.new(-1, 0, -1, 0)
+    blackscreen.Size = UDim2.new(2, 0, 2, 0)
+    game:GetService("RunService"):Set3dRenderingEnabled(false)
+end
 if Settings.danceChoice == "1" then
     task.wait(.25)
     Players:Chat("/e dance")
@@ -776,6 +982,9 @@ else
 end
 if Settings.firstColor and Settings.SecColor and Settings.ThirdColor then
     game:GetService("ReplicatedStorage").UpdateColorEvent:FireServer(Settings.firstColor,Settings.SecColor,Settings.SecColor)
+end
+if Settings.serverHop then
+    ifautoserverhub()
 end
 if Settings.autoBeg then
     spamming = task.spawn(begging)
@@ -789,7 +998,6 @@ end
 if Settings.HighetJump then
     game.Players.LocalPlayer.Character.Humanoid.JumpHeight = Settings.HighetJump
 end
-
 Players.PlayerAdded:Connect(function(Playerz)
     checkPlayerStaff(Playerz)
 end)
