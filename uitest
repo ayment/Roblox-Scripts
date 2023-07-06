@@ -1164,30 +1164,32 @@ function OrionLib:MakeWindow(WindowConfig)
 					DropdownContainer.CanvasSize = UDim2.new(0, 0, 0, DropdownList.AbsoluteContentSize.Y)
 				end)  
 
-				local function AddOptions(Options)
-					for _, Option in pairs(Options) do
-						local OptionBtn = AddThemeObject(SetProps(SetChildren(MakeElement("Button", Color3.fromRGB(40, 40, 40)), {
-							MakeElement("Corner", 0, 6),
-							AddThemeObject(SetProps(MakeElement("Label", Option, 13, 0.4), {
-								Position = UDim2.new(0, 8, 0, 0),
-								Size = UDim2.new(1, -8, 1, 0),
-								Name = "Title"
-							}), "Text")
-						}), {
-							Parent = DropdownContainer,
-							Size = UDim2.new(1, 0, 0, 28),
-							BackgroundTransparency = 1,
-							ClipsDescendants = true
-						}), "Divider")
-
-						AddConnection(OptionBtn.MouseButton1Click, function()
-							Dropdown:Set(Option)
-							SaveCfg(game.GameId)
-						end)
-
-						Dropdown.Buttons[Option] = OptionBtn
-					end
-				end	
+                local function AddOptions(Options)
+                    for _, Option in pairs(Options) do
+                        local OptionBtn = AddThemeObject(SetProps(SetChildren(MakeElement("Button", Color3.fromRGB(40, 40, 40)), {
+                            MakeElement("Corner", 0, 6),
+                            AddThemeObject(SetProps(MakeElement("Label", Option, 13, 0.4), {
+                                Position = UDim2.new(0, 8, 0, 0),
+                                Size = UDim2.new(1, -8, 1, 0),
+                                Name = "Title"
+                            }), "Text")
+                        }), {
+                            Parent = DropdownContainer,
+                            Size = UDim2.new(1, 0, 0, 28),
+                            BackgroundTransparency = 1,
+                            ClipsDescendants = true
+                        }), "Divider")
+                
+                        Dropdown.Buttons[Option] = OptionBtn
+                        Dropdown.Buttons[#Dropdown.Buttons + 1] = OptionBtn -- Add the button to the Buttons table
+                
+                        AddConnection(OptionBtn.MouseButton1Click, function()
+                            Dropdown:Set(Option)
+                            SaveCfg(game.GameId)
+                        end)
+                    end
+                end
+                
 
 				function Dropdown:Refresh(Options, Delete)
 					if Delete then
@@ -1202,26 +1204,29 @@ function OrionLib:MakeWindow(WindowConfig)
 				end  
                 
 				function Dropdown:Add(Options)
-					Dropdown.Options = Options
-					AddOptions(Dropdown.Options)
-				end 
-				function Dropdown:Clear(clearText)
+                    table.clear(Dropdown.Options)
+                    table.clear(Dropdown.Buttons)
+                    Dropdown.Options = Options
+                    AddOptions(Dropdown.Options)
+                end
+                
+                function Dropdown:Clear(clearText)
                     if clearText then
                         for option, button in pairs(Dropdown.Buttons) do
                             if button.Name == "Content" and button.Text == clearText then
                                 button:Destroy()
+                                Dropdown.Buttons[option] = nil
                             end
                         end
-                        table.clear(Dropdown.Options)
-                        table.clear(Dropdown.Buttons)
                     else
                         for _, button in pairs(Dropdown.Buttons) do
                             button:Destroy()
                         end
-                        table.clear(Dropdown.Options)
                         table.clear(Dropdown.Buttons)
                     end
-				end 
+                    table.clear(Dropdown.Options)
+                end
+                
 				function Dropdown:Set(Value)
 					if not table.find(Dropdown.Options, Value) then
 						Dropdown.Value = "..."
