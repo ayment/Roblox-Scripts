@@ -381,7 +381,7 @@ Save()
 end)
 
 chatTab:Button("Add thank you message", "Add thank you messages", function()
-        if not game:GetService("CoreGui").FluxLib:FindFirstChild("EditSign") then
+    if not game:GetService("CoreGui").FluxLib:FindFirstChild("EditSign") then
         local clonedGui = game:GetService("Players").LocalPlayer.PlayerGui.MainGui.Holder.EditSign:Clone()
         clonedGui.Parent = game:GetService("CoreGui").FluxLib
         clonedGui.EditBox.Text = ""
@@ -392,13 +392,13 @@ chatTab:Button("Add thank you message", "Add thank you messages", function()
         clonedGui.Visible = true
         clonedGui.Apply.Activated:Connect(function()
             table.insert(Settings.ThanksList, clonedGui.EditBox.Text)
-            thanksDropdown:Refresh(clonedGui.EditBox.Text, false)
+            thanksDropdown:Add(clonedGui.EditBox.Text)
             clonedGui:Destroy()
         end)
         clonedGui.Buttons.Close.Activated:Connect(function()
             clonedGui:Remove()
         end)  
-    end  
+    end 
 
 end)
 local tymsg = {"CLEAR ALL"}
@@ -409,7 +409,8 @@ for i, v in pairs(Settings.ThanksList) do
 end
 thanksDropdown = chatTab:Dropdown("Remove thank you message", tymsg,false, function(t)
     if t == "CLEAR ALL" then
-        thanksDropdown:Refresh("CLEAR ALL",true)
+        thanksDropdown:Clear()
+        thanksDropdown:Add("CLEAR ALL")
         Settings.ThanksList = {}
     else
     thanksDropdown:Clear(t)
