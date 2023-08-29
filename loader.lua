@@ -1,27 +1,32 @@
-local player = game:GetService("Players").LocalPlayer
+repeat
+    wait()
+until game:IsLoaded()
+game.StarterGui:SetCore("SendNotification", {
+    Title = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name,
+    Text = "Loading the script",
+    Duration = 10
+})
 
-local function displayErrorPopup(text, func)
-	local oldidentity = getidentity()
-	setidentity(8)
-	local ErrorPrompt = getrenv().require(game:GetService("CoreGui").RobloxGui.Modules.ErrorPrompt)
-	local prompt = ErrorPrompt.new("Default")
-	prompt._hideErrorCode = true
-	local gui = Instance.new("ScreenGui", game:GetService("CoreGui"))
-	prompt:setErrorTitle("MOON")
-	prompt:updateButtons({{
-		Text = "OK",
-		Callback = function() 
-			prompt:_close() 
-            player:kick()
-			if func then func() end
-		end,
-		Primary = true
-	}}, 'Default')
-	prompt:setParent(gui)
-	prompt:_open(text)
-	setidentity(oldidentity)
+local A = loadstring(game:HttpGet("https://raw.githubusercontent.com/ayment/Roblox-Scripts/main/gamelist.lua"))()
+getgenv().Get =
+    setmetatable(
+    {},
+    {
+        __index = function(A, B)
+            return game:GetService(B)
+        end
+    }
+)
+
+local queue_on_teleport =
+   fluxus and fluxus.queue_on_teleport or queue_on_teleport or
+    syn and
+        syn.queue_on_teleport [[
+       repeat wait() until game:IsLoaded() wait(5) print("ServerHoped or rejoined")
+       loadstring(game:HttpGet('https://raw.githubusercontent.com/ayment/Roblox-Scripts/main/load.lua'))()]]
+
+for i, v in pairs(Games) do
+    if i == game.PlaceId then
+        loadstring(game:HttpGet(v))()
+    end
 end
-
-
-
-displayErrorPopup("Synapse x is down so you can't use this script wait until it update")
