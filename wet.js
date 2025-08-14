@@ -3,6 +3,7 @@
   const CONFIG = {
     COOLDOWN_DEFAULT: 31000,
     TRANSPARENCY_THRESHOLD: 100,
+    TOKEN_RECOVERY_DELAY: 2000,
     WHITE_THRESHOLD: 250,
     LOG_INTERVAL: 10,
     THEME: {
@@ -146,6 +147,8 @@
     lastPosition: { x: 0, y: 0 },
     estimatedTime: 0,
     language: "en",
+    waitingForToken: false,
+    tokenRecovery: false,
   };
 
   // Global variable to store the captured CAPTCHA token.
@@ -154,8 +157,7 @@
   // Intercept the original window.fetch function to "listen" for network requests.
 const originalFetch = window.fetch;
 window.fetch = async (url, options) => {
-    // Check if the request is for painting a pixel
-    if (typeof url === 'string' && url.includes('https://backend.wplace.live/s0/pixel/')) {
+  if (typeof url === 'string' && url.includes('https://backend.wplace.live/s0/pixel/')) {
         try {
             const payload = JSON.parse(options.body);
             
@@ -173,21 +175,60 @@ window.fetch = async (url, options) => {
             const response = await originalFetch(url, options);
             
             // Handle token expiration (403 errors)
-            if (response.status === 403) {
-                console.error("❌ 403 Forbidden. CAPTCHA token might be invalid or expired.");
-                capturedCaptchaToken = null;
-                showToast("CAPTCHA token expired! Please paint a pixel manually.", "error");
-            }
-            
-            return response;
-        } catch (e) {
-            return originalFetch(url, options);
-        }
+             if (response.status === 403) {
+        console.error("❌ 403 Forbidden. CAPTCHA token expired.");
+        capturedCaptchaToken = null;
+        state.waitingForToken = true;  // NEW: Set recovery flag
+        showToast("CAPTCHA token expired! Please paint a pixel manually.", "error");
+      }
+      
+      return response;
+    } catch (e) {
+      return originalFetch(url, options);
     }
-    return originalFetch(url, options);
+  }
+  return originalFetch(url, options);
 };
 
+async function pausePainting() {
+  if (!state.running) return;
+  state.paused = true;
+  updateUI("paintingPaused", "warning", {
+    x: state.lastPosition.x,
+    y: state.lastPosition.y
+  });
+  updateButtons();
+}
+async function resumePainting() {
+  if (!state.paused) return;
+  state.paused = false;
+  updateUI("resumed", "success");
+  updateButtons();
+  await processImage();
+}
+function updateButtons() {
+  const startBtn = document.querySelector("#startBtn");
+  const stopBtn = document.querySelector("#stopBtn");
+  const pauseBtn = document.querySelector("#pauseBtn"); // You'll need to add this button
+  const resumeBtn = document.querySelector("#resumeBtn"); // You'll need to add this button
 
+  if (state.running && !state.paused) {
+    startBtn.style.display = "none";
+    pauseBtn.style.display = "inline-block";
+    resumeBtn.style.display = "none";
+    stopBtn.style.display = "inline-block";
+  } else if (state.running && state.paused) {
+    startBtn.style.display = "none";
+    pauseBtn.style.display = "none";
+    resumeBtn.style.display = "inline-block";
+    stopBtn.style.display = "inline-block";
+  } else {
+    startBtn.style.display = "inline-block";
+    pauseBtn.style.display = "none";
+    resumeBtn.style.display = "none";
+    stopBtn.style.display = "none";
+  }
+}
   async function detectLanguage() {
     try {
       const response = await fetch("https://ipapi.co/json/");
@@ -1278,6 +1319,14 @@ async paintPixelInRegion(regionX, regionY, pixelX, pixelY, color) {
                 <i class="fas fa-stop"></i>
                 <span>${Utils.t("stopPainting")}</span>
               </button>
+                    <button id="pauseBtn" class="wplace-btn wplace-btn-warning" style="display:none">
+        <i class="fas fa-pause"></i>
+        <span>${Utils.t("pause")}</span>
+      </button>
+      <button id="resumeBtn" class="wplace-btn wplace-btn-primary" style="display:none">
+        <i class="fas fa-play"></i>
+        <span>${Utils.t("resume")}</span>
+      </button>
             </div>
           </div>
         </div>
@@ -1400,6 +1449,8 @@ async paintPixelInRegion(regionX, regionY, pixelX, pixelY, color) {
     const statsArea = statsContainer.querySelector("#statsArea");
     const content = container.querySelector(".wplace-content");
     const closeStatsBtn = statsContainer.querySelector("#closeStatsBtn");
+      document.querySelector("#pauseBtn").addEventListener("click", pausePainting);
+  document.querySelector("#resumeBtn").addEventListener("click", resumePainting);
 
     // Check if all elements are found
     if (!initBotBtn || !uploadBtn || !selectPosBtn || !startBtn || !stopBtn) {
@@ -2131,7 +2182,17 @@ async paintPixelInRegion(regionX, regionY, pixelX, pixelY, color) {
             updateUI("paintingPaused", "warning", { x, y });
             break outerLoop;
           }
-
+      if (state.waitingForToken) {
+        pausePainting();
+        while (state.waitingForToken) {
+          await Utils.sleep(1000);
+          if (capturedCaptchaToken) {
+            state.waitingForToken = false;
+            resumePainting();
+            continue outerLoop; // Restart from current position
+          }
+        }
+      }
           if (state.paintedMap[y][x]) continue;
 
           const idx = (y * width + x) * 4;
